@@ -37,6 +37,8 @@ void SRout() {
     gPad->SetTopMargin(0);
     gPad->SetBottomMargin(0.15);
     t->Draw("Pulse[0]:CapaId[0]", cut.Data());
+    TLine* line = new TLine(SRout, 0, SRout, 500);
+    line->Draw();
     PutText(0.5, 0.9, kBlack, cut.Data(), 0.07); 
     PutText(0.65, 0.9, kBlack, SRoutString.Data(), 0.07);
     j+=3;
