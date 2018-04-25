@@ -3,14 +3,14 @@ void SRout() {
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
 
-  TFile* f = new TFile("/home/ebusato/Travail/gowork2/src/gitlab.in2p3.fr/avirm/analysis-go/dpgatca/godaq/file.root", "read");
+  TFile* f = new TFile("port06datas/run_500spls/MyFile_enp0s31f6@0_0.root", "read");
   f->Print();
   TTree* t = (TTree*) f->Get("tree");
 
   /////////////////////////////////////////////
-  // Implement conversion to in automatically
-  TString noPulse("8");
-  int noPulseI(8);
+  // Implement conversion to int automatically
+  TString noPulse("10");
+  int noPulseI(10);
   /////////////////////////////////////////////
 
   TCanvas* c = new TCanvas("c", "c", 1200, 1200);
@@ -18,10 +18,10 @@ void SRout() {
   int ncols = 3;
   c->Divide(ncols,nrows);
   int j=1;
-  for(int i=1; i<=nrows; i++) {
+  for(int i=2; i<=nrows; i++) {
     TString cut("Evt == ");
-    cut+=i*10;
-    //cut+=i*1;
+    //cut+=i*10;
+    cut+=i*1;
     cout << cut << endl;
     c->cd(j);
     gPad->SetTopMargin(0);
@@ -43,7 +43,7 @@ void SRout() {
     c->cd(j+2);
     gPad->SetTopMargin(0);
     gPad->SetBottomMargin(0.15);
-    t->Draw("Pulse["+noPulse+"]:CapaId["+noPulse+"]", cut.Data());
+    t->Draw("Pulse["+noPulse+"]:CapaId["+noPulse+"]", cut.Data(),"l");
     TLine* line = new TLine(SRout, 0, SRout, 500);
     line->Draw();
     PutText(0.5, 0.9, kBlack, cut.Data(), 0.07); 
