@@ -1,4 +1,33 @@
 
+TGraph *PlotPulse(TTree* t, int noPulse, TString cutEvt, int color)
+{
+  TString toDraw = Form("Pulse[%i]:SampleTimes", noPulse);
+  //cout << "toDraw = " << toDraw << endl;
+  int n = t->Draw(toDraw, cutEvt.Data(), "goff");
+  TGraph* g = new TGraph(n, t->GetV2(), t->GetV1());
+  g->SetLineColor(color);
+  g->SetMarkerColor(color);
+  g->SetLineWidth(1);
+  return g;
+}
+
+TMultiGraph* DrawMultiGraph(TTree* t, int noPulseStart, TString cutEvt)
+{
+  TGraph *g0 = PlotPulse(t, noPulseStart, cutEvt, kRed);
+  TGraph *g1 = PlotPulse(t, noPulseStart+1, cutEvt, kGreen+2);
+  TGraph *g2 = PlotPulse(t, noPulseStart+2, cutEvt, kBlue);
+  TGraph *g3 = PlotPulse(t, noPulseStart+3, cutEvt, kMagenta);
+  TMultiGraph* multi = new TMultiGraph();
+  multi->Add(g0);
+  multi->Add(g1);
+  multi->Add(g2);
+  multi->Add(g3);
+  multi->Draw("apl");
+  TString text = Form(", Quartet=%i", noPulseStart/4);
+  PutText(0.45, 0.9, kBlack, (cutEvt+text).Data(), 0.07); 
+  return multi;
+}
+
 void SRout() {
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
@@ -7,6 +36,26 @@ void SRout() {
   f->Print();
   TTree* t = (TTree*) f->Get("tree");
 
+  ////////////////////////////////////////////
+  // Plot pulses for one event
+  TCanvas *cEvt = new TCanvas("cEvt", "cEvt", 1200, 1000);
+  cEvt->Divide(2,3);
+  TString cutEvt("Evt==2");
+  cEvt->cd(1);
+  DrawMultiGraph(t, 0, cutEvt);
+  cEvt->cd(2);
+  DrawMultiGraph(t, 4, cutEvt);
+  cEvt->cd(3);
+  DrawMultiGraph(t, 8, cutEvt);
+  cEvt->cd(4);
+  DrawMultiGraph(t, 12, cutEvt);
+  cEvt->cd(5);
+  DrawMultiGraph(t, 16, cutEvt);
+  cEvt->cd(6);
+  DrawMultiGraph(t, 20, cutEvt);
+  ////////////////////////////////////////////
+
+  /*
   /////////////////////////////////////////////
   // Implement conversion to int automatically
   TString noPulse("10");
@@ -50,4 +99,5 @@ void SRout() {
     PutText(0.65, 0.9, kBlack, SRoutString.Data(), 0.07);
     j+=3;
   }
+  */
 }
