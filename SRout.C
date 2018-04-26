@@ -1,8 +1,13 @@
 
-TGraph *PlotPulse(TTree* t, int noPulse, TString cutEvt, int color)
-{
-  TString toDraw = Form("Pulse[%i]:SampleTimes", noPulse);
-  //cout << "toDraw = " << toDraw << endl;
+TGraph *PlotPulse(TTree* t, int noPulse, TString cutEvt, int color, TString xAxis)
+{TString toDraw = "";
+  if(xAxis.Contains("CapaId")) {
+    toDraw = Form("Pulse[%i]:%s[%i]", noPulse, xAxis.Data(), noPulse);
+  }
+  else {
+    toDraw = Form("Pulse[%i]:%s", noPulse, xAxis.Data());
+  }
+  cout << "toDraw = " << toDraw << endl;
   int n = t->Draw(toDraw, cutEvt.Data(), "goff");
   TGraph* g = new TGraph(n, t->GetV2(), t->GetV1());
   g->SetLineColor(color);
@@ -11,12 +16,12 @@ TGraph *PlotPulse(TTree* t, int noPulse, TString cutEvt, int color)
   return g;
 }
 
-TMultiGraph* DrawMultiGraph(TTree* t, int noPulseStart, TString cutEvt)
+TMultiGraph* DrawMultiGraph(TTree* t, int noPulseStart, TString cutEvt, TString xAxis)
 {
-  TGraph *g0 = PlotPulse(t, noPulseStart, cutEvt, kRed);
-  TGraph *g1 = PlotPulse(t, noPulseStart+1, cutEvt, kGreen+2);
-  TGraph *g2 = PlotPulse(t, noPulseStart+2, cutEvt, kBlue);
-  TGraph *g3 = PlotPulse(t, noPulseStart+3, cutEvt, kMagenta);
+  TGraph *g0 = PlotPulse(t, noPulseStart, cutEvt, kRed, xAxis);
+  TGraph *g1 = PlotPulse(t, noPulseStart+1, cutEvt, kGreen+2, xAxis);
+  TGraph *g2 = PlotPulse(t, noPulseStart+2, cutEvt, kBlue, xAxis);
+  TGraph *g3 = PlotPulse(t, noPulseStart+3, cutEvt, kMagenta, xAxis);
   TMultiGraph* multi = new TMultiGraph();
   multi->Add(g0);
   multi->Add(g1);
@@ -24,11 +29,14 @@ TMultiGraph* DrawMultiGraph(TTree* t, int noPulseStart, TString cutEvt)
   multi->Add(g3);
   multi->Draw("apl");
   TString text = Form(", Quartet=%i", noPulseStart/4);
-  PutText(0.45, 0.9, kBlack, (cutEvt+text).Data(), 0.07); 
+  PutText(0.45, 0.9, kBlack, (cutEvt+text).Data(), 0.07);
+  t->Scan(Form("SRout[%i]", noPulseStart), cutEvt.Data());
+  int SRout = t->GetLeaf("SRout")->GetValue(noPulseStart);
+  PutText(0.2, 0.8, kBlack, Form("SRout=%i", SRout), 0.07);
   return multi;
 }
 
-void SRout(int Evt) {
+void SRout(int Evt, TString xAxis="SampleTimes") {
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
 
@@ -38,21 +46,21 @@ void SRout(int Evt) {
 
   ////////////////////////////////////////////
   // Plot pulses for one event
-  TCanvas *cEvt = new TCanvas("cEvt", "cEvt", 1200, 1000);
+  TCanvas *cEvt = new TCanvas(Form("cEvt_%i_%s", Evt, xAxis.Data()), Form("cEvt_%i_%s", Evt, xAxis.Data()), 1200, 1000);
   cEvt->Divide(2,3);
   TString cutEvt = Form("Evt==%i", Evt);
   cEvt->cd(1);
-  DrawMultiGraph(t, 0, cutEvt);
+  DrawMultiGraph(t, 0, cutEvt, xAxis);
   cEvt->cd(2);
-  DrawMultiGraph(t, 4, cutEvt);
+  DrawMultiGraph(t, 4, cutEvt, xAxis);
   cEvt->cd(3);
-  DrawMultiGraph(t, 8, cutEvt);
+  DrawMultiGraph(t, 8, cutEvt, xAxis);
   cEvt->cd(4);
-  DrawMultiGraph(t, 12, cutEvt);
+  DrawMultiGraph(t, 12, cutEvt, xAxis);
   cEvt->cd(5);
-  DrawMultiGraph(t, 16, cutEvt);
+  DrawMultiGraph(t, 16, cutEvt, xAxis);
   cEvt->cd(6);
-  DrawMultiGraph(t, 20, cutEvt);
+  DrawMultiGraph(t, 20, cutEvt, xAxis);
   ////////////////////////////////////////////
 
   /*
