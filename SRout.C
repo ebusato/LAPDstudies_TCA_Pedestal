@@ -28,7 +28,7 @@ TMultiGraph* DrawMultiGraph(TTree* t, int noPulseStart, TString cutEvt)
   return multi;
 }
 
-void SRout() {
+void SRout(int Evt) {
   gStyle->SetPadGridX(1);
   gStyle->SetPadGridY(1);
 
@@ -40,7 +40,7 @@ void SRout() {
   // Plot pulses for one event
   TCanvas *cEvt = new TCanvas("cEvt", "cEvt", 1200, 1000);
   cEvt->Divide(2,3);
-  TString cutEvt("Evt==2");
+  TString cutEvt = Form("Evt==%i", Evt);
   cEvt->cd(1);
   DrawMultiGraph(t, 0, cutEvt);
   cEvt->cd(2);
